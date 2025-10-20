@@ -101,12 +101,14 @@ def job():
         print(f"[{datetime.now()}] Failed to send {today} message.  See {LOG_FILE} for details.")
 
 
+"""
 if __name__ == "__main__":
     logging.info("Bot starting.")
     if "YOUR_TELEGRAM_BOT_TOKEN" in BOT_TOKEN or "YOUR_CHAT_ID" in CHAT_ID:
         print("Please update BOT_TOKEN and CHAT_ID in the script before running.")
         logging.error("BOT_TOKEN/CHAT_ID not configured.")
         exit(1)
+"""
 
     daily_message = prompt_for_message()
 
@@ -142,3 +144,4 @@ if SEND_ON_START:
 while True:
     schedule.run_pending()
     time.sleep(30)
+
