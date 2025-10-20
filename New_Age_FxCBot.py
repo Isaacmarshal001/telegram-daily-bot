@@ -21,9 +21,11 @@ LOG_FILE = "bot.log"
 SEND_ON_START = os.getenv("SEND_ON_START", "false").lower() == "true"
 
 
+"""
 if not BOT_TOKEN and not CHAT_ID:
     print("ERROR BOT_TOKEN and CHAT_ID musbe set as environment variable.")
     exit(1)
+"""
 # ----------------------------------
 
 # Setup logging
@@ -144,4 +146,5 @@ if SEND_ON_START:
 while True:
     schedule.run_pending()
     time.sleep(30)
+
 
