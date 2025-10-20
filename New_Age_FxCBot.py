@@ -97,7 +97,7 @@ def job():
     if today in ["Sunday"]:
         message_to_send = f"🌞 Hey traders, Happy {today}!\n\nWelcome to a new week"
     logging.info(f"Sending scheduled message for {today}")
-    sent = send_telegram_message(BOT_TOKEN, CHAT_ID, message_to_send)
+    sent = send_telegram_message(TELEGRAM_BOT_TOKEN, CHAT_ID, message_to_send)
     if sent:
         print(f"[{datetime.now()}] {today} message sent.")
     else:
@@ -147,6 +147,7 @@ if SEND_ON_START:
 while True:
     schedule.run_pending()
     time.sleep(30)
+
 
 
 
