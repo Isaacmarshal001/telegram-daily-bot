@@ -13,8 +13,8 @@ import time
 
 
 # ------------- CONFIG -------------
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") # replace with your token
-CHAT_ID   = os.getenv("CHAT_ID")              # replace with your chat id (string or number)
+TELEGRAM_BOT_TOKEN = "6767405300:AAEyckYT-5W5Z3iGwvvUNbWVnXpMeQWBtr4" # replace with your token
+CHAT_ID   =  -"1001779062214"             # replace with your chat id (string or number)
 SCHEDULE_TIME = os.getenv("SCHEDULE_TIME", "08:00")                 # 24-hour HH:MM when message will be sent daily
 MESSAGE_FILE = os.getenv("MESSAGE_FILE", "daily_message.txt")      # optional file. If exists, message is read from here
 LOG_FILE = "bot.log"
@@ -150,6 +150,7 @@ if SEND_ON_START:
 while True:
     schedule.run_pending()
     time.sleep(30)
+
 
 
 
