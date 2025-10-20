@@ -13,13 +13,17 @@ import time
 
 
 # ------------- CONFIG -------------
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") # replace with your token
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN") # replace with your token
 CHAT_ID   = os.getenv("CHAT_ID")              # replace with your chat id (string or number)
 SCHEDULE_TIME = os.getenv("SCHEDULE_TIME", "08:00")                 # 24-hour HH:MM when message will be sent daily
 MESSAGE_FILE = os.getenv("MESSAGE_FILE", "daily_message.txt")      # optional file. If exists, message is read from here
 LOG_FILE = "bot.log"
 SEND_ON_START = os.getenv("SEND_ON_START", "false").lower() == "true"
 
+
+if not TELEGRAM_BOT_TOKEN or not CHAT_ID:
+    print("ERROR: TELEGRAM_BOT_TOKEN or CHAT_ID not set. Check GitHub Secrets.")
+    exit(1)
 
 """
 if not BOT_TOKEN and not CHAT_ID:
@@ -146,5 +150,6 @@ if SEND_ON_START:
 while True:
     schedule.run_pending()
     time.sleep(30)
+
 
 
