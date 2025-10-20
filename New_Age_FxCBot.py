@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-daily_telegram_bot.py
-Simple daily Telegram sender with user input and weekend delivery.
+New_Age_FxCBot.py
+Daily Telegram message bot — sends messages every day including weekends.
 Requires: requests, schedule
 """
 
@@ -9,64 +9,40 @@ import requests, schedule, time, logging
 import os
 from datetime import datetime
 from pathlib import Path
-import time
 
 
 # ------------- CONFIG -------------
-TELEGRAM_BOT_TOKEN = "6767405300:AAEyckYT-5W5Z3iGwvvUNbWVnXpMeQWBtr4" # replace with your token
-CHAT_ID   =  -"1001779062214"             # replace with your chat id (string or number)
-SCHEDULE_TIME = os.getenv("SCHEDULE_TIME", "08:00")                 # 24-hour HH:MM when message will be sent daily
-MESSAGE_FILE = os.getenv("MESSAGE_FILE", "daily_message.txt")      # optional file. If exists, message is read from here
+TELEGRAM_BOT_TOKEN = "6767405300:AAEyckYT-5W5Z3iGwvvUNbWVnXpMeQWBtr4"  # Your bot token
+CHAT_ID = "-1001779062214"  # Your chat ID (note: must be a string, no minus outside quotes)
+SCHEDULE_TIME = os.getenv("SCHEDULE_TIME", "08:00")  # 8 AM Nigeria Time
+MESSAGE_FILE = os.getenv("MESSAGE_FILE", "daily_message.txt")  # Message file
 LOG_FILE = "bot.log"
 SEND_ON_START = os.getenv("SEND_ON_START", "false").lower() == "true"
-
-
-
-"""
-if not BOT_TOKEN and not CHAT_ID:
-    print("ERROR BOT_TOKEN and CHAT_ID musbe set as environment variable.")
-    exit(1)
-"""
 # ----------------------------------
 
+
 # Setup logging
-logging.basicConfig(filename=LOG_FILE,
-                    level=logging.INFO,
-                    format='%(asctime)s [%(levelname)s] %(message)s')
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+
 
 def prompt_for_message():
-    """
-    If MESSAGE_FILE exists, read message from it.
-    Otherwise prompt the user to enter a message (multiline allowed).
-    """
+    """Load the daily message from file if it exists."""
     p = Path(MESSAGE_FILE)
     if p.exists():
-        msg = p.read_text(encoding='utf-8').strip()
+        msg = p.read_text(encoding="utf-8").strip()
         logging.info("Loaded message from %s", MESSAGE_FILE)
         return msg
-    """
     else:
-        print("Enter your daily message. Finish with an empty line (press Enter twice):")
-        lines = []
-        while True:
-            line = input()
-            if line == "":
-                break
-            lines.append(line)
-        msg = "\n".join(lines).strip()
-        if not msg:
-            print("No message entered. Exiting.")
-            logging.error("No message entered by user.")
-            exit(1)
-        # optionally save message for reuse
-        save = input("Save message to daily_message.txt for reuse? (y/n): ").strip().lower()
-        if save == "y":
-            p.write_text(msg, encoding='utf-8')
-            logging.info("Saved message to %s", MESSAGE_FILE)
-        return msg
-    """
+        logging.warning("No message file found. Using default message.")
+        return "Hello traders 👋 — here's your daily update!"
+
 
 def send_telegram_message(token, chat_id, message):
+    """Send a message via Telegram API."""
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {
         "chat_id": str(chat_id),
@@ -86,70 +62,57 @@ def send_telegram_message(token, chat_id, message):
         logging.exception("Exception sending message: %s", e)
         return False
 
+
 def job():
+    """Main job that runs at scheduled times."""
     global daily_message
-    today = datetime.now().strftime("%A")  # e.g. "Saturday"
+    today = datetime.now().strftime("%A")  # e.g. Saturday
     message_to_send = daily_message
 
-    # Optional: weekend special message
-    if today in ["Saturday"]:
-        message_to_send = f"🌞 Happy Weekend - ( {today} )!\n\n"
-    if today in ["Sunday"]:
-        message_to_send = f"🌞 Hey traders, Happy {today}!\n\nWelcome to a new week"
+    # Weekend special messages
+    if today == "Saturday":
+        message_to_send = f"🌞 Happy Weekend — ({today})!\n\nEnjoy your rest day traders!"
+    elif today == "Sunday":
+        message_to_send = f"🌞 Hey traders, Happy {today}!\n\nPrepare for a new trading week ahead 💹"
+
     logging.info(f"Sending scheduled message for {today}")
     sent = send_telegram_message(TELEGRAM_BOT_TOKEN, CHAT_ID, message_to_send)
+
     if sent:
-        print(f"[{datetime.now()}] {today} message sent.")
+        print(f"[{datetime.now()}] {today} message sent successfully.")
     else:
-        print(f"[{datetime.now()}] Failed to send {today} message.  See {LOG_FILE} for details.")
+        print(f"[{datetime.now()}] ❌ Failed to send {today} message. Check {LOG_FILE}.")
 
 
-"""
+# ------------- MAIN EXECUTION -------------
 if __name__ == "__main__":
-    logging.info("Bot starting.")
-    if "YOUR_TELEGRAM_BOT_TOKEN" in BOT_TOKEN or "YOUR_CHAT_ID" in CHAT_ID:
-        print("Please update BOT_TOKEN and CHAT_ID in the script before running.")
-        logging.error("BOT_TOKEN/CHAT_ID not configured.")
+    logging.info("Bot starting...")
+    print("Starting New_Age_FxCBot...")
+
+    # Validate configuration
+    if not TELEGRAM_BOT_TOKEN or not CHAT_ID:
+        print("ERROR: Missing TELEGRAM_BOT_TOKEN or CHAT_ID.")
+        logging.error("Missing TELEGRAM_BOT_TOKEN or CHAT_ID.")
         exit(1)
-"""
 
     daily_message = prompt_for_message()
 
-    # Schedule job every day at SCHEDULE_TIME (including weekends)
-    # Schedule job for weekdays (Mon–Fri)
-    schedule.every().monday.at(SCHEDULE_TIME).do(job)
-    schedule.every().tuesday.at(SCHEDULE_TIME).do(job)
-    schedule.every().wednesday.at(SCHEDULE_TIME).do(job)
-    schedule.every().thursday.at(SCHEDULE_TIME).do(job)
-    schedule.every().friday.at(SCHEDULE_TIME).do(job)
+    # Schedule daily messages (Mon–Sun)
+    schedule.every().day.at(SCHEDULE_TIME).do(job)
 
-    # Schedule weekend messages (Sat–Sun)
-    schedule.every().saturday.at(SCHEDULE_TIME).do(job)
-    schedule.every().sunday.at(SCHEDULE_TIME).do(job)
+    print(f"✅ Bot scheduled to send message daily at {SCHEDULE_TIME} (Nigeria Time).")
+    logging.info("Scheduled job at %s", SCHEDULE_TIME)
 
+    # Optional: send immediately at startup
+    if SEND_ON_START:
+        print("SEND_ON_START=true → sending initial message now...")
+        job()
 
-    print(f"Bot scheduled: will send daily (Mon-Fri) at {SCHEDULE_TIME}. Logs: {LOG_FILE}")
-    logging.info("Scheduled daily job at %s", SCHEDULE_TIME)
-
-    # Initial immediate send option
-if SEND_ON_START:
-    print("SEND_ON_START=true → sending immediate message...")
-    job()
-
+    # Loop forever to keep bot alive
     try:
         while True:
             schedule.run_pending()
-            time.sleep(10)
+            time.sleep(30)
     except KeyboardInterrupt:
         print("Bot stopped by user.")
-        logging.info("Bot stopped by user.")
-
-while True:
-    schedule.run_pending()
-    time.sleep(30)
-
-
-
-
-
-
+        logging.info("Bot stopped manually.")
