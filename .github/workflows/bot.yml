@@ -1,29 +1,30 @@
-name: Daily Telegram Bot
+name: Daily Telegram Message
 
 on:
   schedule:
-    # UTC times: adjust to your local
-    - cron: '0 7 * * *'    # every day at 07:00 UTC
-  workflow_dispatch:       # allow manual trigger
+    - cron: '0 7 * * *'  # 7 AM UTC = 8 AM Nigeria
+  workflow_dispatch:
 
 jobs:
   send_message:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install requests schedule
 
-    - name: Run Telegram bot
-      env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        CHAT_ID: ${{ secrets.CHAT_ID }}
-      run: python New_Age_FxCBot.py
+      - name: Run Telegram Bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          SCHEDULE_TIME: "08:00"
+          SEND_ON_START: "true"
+        run: python New_Age_FxCBot.py
